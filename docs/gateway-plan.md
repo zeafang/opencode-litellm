@@ -45,7 +45,7 @@ v1 写“OpenCode 是唯一入口”。改成：**网关是资产，前端随便
   公司 LiteLLM ── DeepSeek（合规通道，只出内网）
   Google AI   ── Gemini（视觉 + 长上下文）
   Anthropic   ── Claude（个人，重逻辑）
-  Ollama      ── 本地模型 / embedding（完全离线）
+  Embedding   ── 向量（同一网关，/v1/embeddings）
   转写/合成   ── STT / TTS（单独挂）
 ```
 
@@ -67,8 +67,7 @@ v1 的别名是 `company-deepseek-v3` 这种“厂商 + 型号”。改后这样
 | `reason-deep` | 死锁、算法、长推理 | 公司 DeepSeek R1 | 否 | 是 | 中 |
 | `vision-pro` | 看截图、看 UI 稿、长文档 | Gemini Pro | 是 | 是 | 超长 |
 | `claude-main` | 复杂重构、写作 | Claude（API/订阅） | 是 | 是 | 长 |
-| `local-offline` | 断网、敏感、兜底 | Ollama qwen-coder | 否 | 部分 | 小 |
-| `embed-local` | 向量检索、本地 RAG | Ollama nomic-embed | — | — | — |
+| `embed-cloud` | 向量检索、本地 RAG | Gemini embedding | — | — | — |
 | `stt-local` | 语音转文字 | faster-whisper / whisper API | — | — | — |
 | `tts-local` | 文字转语音 | 本地 TTS | — | — | — |
 
@@ -139,18 +138,11 @@ model_list:
       supports_vision: true
       supports_function_calling: true
 
-  # ---------- 本地 ----------
-  - model_name: local-offline
+  # ---------- 向量 ----------
+  - model_name: embed-cloud
     litellm_params:
-      model: ollama/qwen2.5-coder:14b
-      api_base: http://127.0.0.1:11434
-    model_info:
-      supports_vision: false
-
-  - model_name: embed-local
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://127.0.0.1:11434
+      model: gemini/<当前embedding型号>
+      api_key: os.environ/GEMINI_API_KEY
 
 router_settings:
   routing_strategy: simple-shuffle
@@ -262,7 +254,7 @@ print(c.chat.completions.create(
 | 语音转文字 | `stt-local` | 会议、录音、口述需求 |
 | 文字转语音 | `tts-local` | 播报、朗读 |
 | 视频 | 先抽帧再当图 | 网关不处理视频，本地 ffmpeg 抽帧 |
-| 检索 | `embed-local` | 向量化，配本地向量库 |
+| 检索 | `embed-cloud` | 向量化，配本地向量库 |
 
 ### 5.2 落地顺序（别一次全上）
 
@@ -278,7 +270,7 @@ print(c.chat.completions.create(
 embedding 不走 `chat/completions`，走 `/v1/embeddings`。前端和向量库各配一次 baseURL 即可。
 
 ```python
-c.embeddings.create(model="embed-local", input=["第一段", "第二段"])
+c.embeddings.create(model="embed-cloud", input=["第一段", "第二段"])
 ```
 
 ---
@@ -292,7 +284,6 @@ c.embeddings.create(model="embed-local", input=["第一段", "第二段"])
 | 主指挥 | `vision-pro` / `claude-main` | 读需求、看截图、拆任务、验收 |
 | 执行员 | `code-fast` | 写代码、改 SQL、跑测试 |
 | 攻坚 | `reason-deep` | 卡住的 bug、并发、算法 |
-| 兜底 | `local-offline` | 断网或敏感时顶上 |
 
 派发规则：主指挥**只做决策和验收**，不写长代码；执行员**只做被派的那一小块**。
 
@@ -490,22 +481,23 @@ pip install -U "litellm[proxy]"
 | Node | 24.15.0 ✅ |
 | npm | 11.12.1 ✅ |
 | litellm | 1.109.1 已装 ✅ |
-| 网关进程 | 已启动，127.0.0.1:4000 ✅ |
-| 生效配置 | `config.starter.yaml`（仅本地模型） |
+| 网关进程 | 起过一次，127.0.0.1:4000 ✅ |
+| 生效配置 | `config.starter.yaml`（单个云端模型） |
 | 上游 key | 未配置 ❌ |
 | opencode | 未安装 ❌ |
-| ollama | 未安装，11434 无响应 ❌ |
+| ollama | 不使用（已确认不需要本地模型） |
 
 清单进度：第 1–5 步已完成并验收。
 
 | 验收项 | 结果 |
 |---|---|
 | `/health/liveliness` | `"I'm alive!"` |
-| `/v1/models` | `local-offline`、`embed-local` |
+| `/v1/models` | 别名列表正确返回 |
 | 无 key 请求 | 401 |
-| `chat local-offline` | 路由正确，Ollama 未装所以连接被拒 |
+| 带 key 请求 | 路由到目标别名，无 key 时上游连不上 |
 
-剩余：第 6 步需要 Ollama 或至少一个上游 key；第 7 步需要 `vision-pro` 的 key。
+剩余：第 6 步起需要至少一个上游 key（`GEMINI_API_KEY` 或公司 key）。
+不需要 Ollama：整条本地分支已移除。
 
 ## 附录 B：相对 v1 的改动清单
 

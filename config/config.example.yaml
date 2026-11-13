@@ -40,18 +40,14 @@ model_list:
       supports_vision: true
       supports_function_calling: true
 
-  # ---------- 本地 ----------
-  - model_name: local-offline
+  # ---------- 向量 ----------
+  - model_name: embed-cloud
     litellm_params:
-      model: ollama/qwen2.5-coder:14b
-      api_base: http://127.0.0.1:11434
-    model_info:
-      supports_vision: false
+      model: gemini/<当前embedding型号>
+      api_key: os.environ/GEMINI_API_KEY
 
-  - model_name: embed-local
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://127.0.0.1:11434
+# 不使用本地模型，所以没有 Ollama 条目。
+# 以后要完全离线，加一个 model_list 项即可，前端不用改。
 
 router_settings:
   routing_strategy: simple-shuffle

@@ -12,8 +12,7 @@
         "code-fast": { "name": "Code Fast (Company)" },
         "reason-deep": { "name": "Deep Reason (Company)" },
         "vision-pro": { "name": "Vision Pro (Gemini)" },
-        "claude-main": { "name": "Claude Main" },
-        "local-offline": { "name": "Local Offline" }
+        "claude-main": { "name": "Claude Main" }
       }
     }
   },

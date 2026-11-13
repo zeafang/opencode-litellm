@@ -10,8 +10,9 @@ $env:ANTHROPIC_API_KEY   = "<anthropic key>"
 # 随机串，前端用它当 apiKey
 $env:LITELLM_MASTER_KEY = "sk-local-" + (-join ((48..57) + (97..122) | Get-Random -Count 24 | % { [char]$_ }))
 
-# 花费日志。SQLite 够单机；虚拟 key 分权要 Postgres。
-$env:LITELLM_DATABASE_URL = "sqlite:///$($HOME -replace '\\','/')/.litellm/litellm.db"
+# 花费日志 / 虚拟 key：只支持 Postgres。实测 SQLite 会让网关拒绝启动。
+# 没有 Postgres 就留空，网关照常工作，只是不记录。
+$env:LITELLM_DATABASE_URL = ""
 
 # ---- 本机代理会拦掉 localhost，必须排除 ----
 $env:NO_PROXY = "127.0.0.1,localhost"

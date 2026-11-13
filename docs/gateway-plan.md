@@ -84,7 +84,7 @@ C:\Users\ziyi.fang\.litellm\
   config.yaml
   env.ps1          # key，不进 git
   proxy.log
-  litellm.db       # 花费日志（SQLite 起步）
+  litellm.db       # 不用：SQLite 不被支持，花费日志需要 Postgres
 ```
 
 ### 4.2 安装
@@ -179,14 +179,14 @@ $env:COMPANY_LITELLM_KEY = "<公司虚拟key>"
 $env:GEMINI_API_KEY      = "<google key>"
 $env:ANTHROPIC_API_KEY   = "<anthropic key>"
 $env:LITELLM_MASTER_KEY  = "sk-local-<随机串>"
-$env:LITELLM_DATABASE_URL = "sqlite:///C:/Users/ziyi.fang/.litellm/litellm.db"
+$env:LITELLM_DATABASE_URL = ""   # 只认 postgresql://
 
 # 关键：本机代理会拦掉 localhost 请求
 $env:NO_PROXY = "127.0.0.1,localhost"
 $env:no_proxy = "127.0.0.1,localhost"
 ```
 
-> SQLite 只够记花费。要用**虚拟 key 分权**（公司 key 只能调公司别名），必须换 Postgres。
+> 实测：LiteLLM 1.109.1 拒绝 `sqlite://`。花费日志和虚拟 key 都要 `postgresql://`。没有库时网关照常工作，只是不记录。
 
 ### 4.5 启动
 
@@ -379,7 +379,7 @@ Claude Code 说的是 Anthropic 协议，不是 OpenAI 协议。它能指网关�
 
 ### 8.1 花费与调用记录
 
-`database_url` 配好后。生产使用时优先考虑 Postgres；SQLite 适合作为单机试用，虚拟 key、预算和访问控制支持情况需按当前 LiteLLM 版本验证：
+`database_url` 必须是 Postgres。SQLite 在 1.109.1 上会被直接拒绝启动。配好后：
 
 ```powershell
 curl.exe -s http://127.0.0.1:4000/spend/logs -H "Authorization: Bearer $env:LITELLM_MASTER_KEY"
@@ -505,7 +505,7 @@ pip install -U "litellm[proxy]"
 |---|---|
 | OpenCode 是唯一入口 | 网关是资产，前端任选 |
 | 别名 = 厂商+型号 | 别名 = 能力 |
-| 无数据库 | SQLite 记花费，Postgres 做 key 分权 |
+| 无数据库 | Postgres 记花费并做 key 分权（SQLite 不支持） |
 | `fallbacks` 一条 | 区分故障与上下文降级；审核拒绝默认不跨通道重试 |
 | 多模态 = Gemini 一条 | 能力矩阵 + 落地顺序 + 转写/合成/embedding |
 | `claude-3-7-sonnet` | 占位符，按当前型号填 |

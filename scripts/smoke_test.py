@@ -52,7 +52,7 @@ def main():
             r = post(f"{base}/v1/chat/completions", a.key, {
                 "model": a.model,
                 "messages": [{"role": "user", "content": content}],
-                "max_tokens": 64,
+                "max_tokens": 256,
             })
             print(f"[PASS] chat {a.model}: {r['choices'][0]['message']['content'][:80]}")
         except urllib.error.HTTPError as e:

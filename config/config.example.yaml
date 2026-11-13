@@ -69,4 +69,5 @@ litellm_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
-  database_url: os.environ/LITELLM_DATABASE_URL
+  # database_url 只支持 postgresql://；SQLite 会被拒绝。没有库就留空。
+  # database_url: os.environ/LITELLM_DATABASE_URL

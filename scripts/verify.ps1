@@ -45,7 +45,7 @@ if ($Model) {
             $body = @{
                 model    = $Model
                 messages = @(@{ role = "user"; content = "只回复两个字：通了" })
-                max_tokens = 32
+                max_tokens = 256
             } | ConvertTo-Json -Depth 5
             $r = Invoke-RestMethod "$base/v1/chat/completions" -Method Post `
                  -Headers $headers -ContentType "application/json" -Body $body -TimeoutSec 120

@@ -489,12 +489,23 @@ pip install -U "litellm[proxy]"
 | pip | 25.0.1 ✅ |
 | Node | 24.15.0 ✅ |
 | npm | 11.12.1 ✅ |
-| litellm | 未安装 ❌ |
+| litellm | 1.109.1 已装 ✅ |
+| 网关进程 | 已启动，127.0.0.1:4000 ✅ |
+| 生效配置 | `config.starter.yaml`（仅本地模型） |
+| 上游 key | 未配置 ❌ |
 | opencode | 未安装 ❌ |
 | ollama | 未安装，11434 无响应 ❌ |
-| 端口 4000 | 空闲 ✅ |
 
-装完 litellm 和 ollama，第 10 节的 1–9 步当天就能走完。
+清单进度：第 1–5 步已完成并验收。
+
+| 验收项 | 结果 |
+|---|---|
+| `/health/liveliness` | `"I'm alive!"` |
+| `/v1/models` | `local-offline`、`embed-local` |
+| 无 key 请求 | 401 |
+| `chat local-offline` | 路由正确，Ollama 未装所以连接被拒 |
+
+剩余：第 6 步需要 Ollama 或至少一个上游 key；第 7 步需要 `vision-pro` 的 key。
 
 ## 附录 B：相对 v1 的改动清单
 

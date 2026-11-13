@@ -1,0 +1,24 @@
+# 密钥与本地配置
+env.ps1
+.env
+*.env
+config/config.local.yaml
+*.key
+*.pem
+secrets*
+
+# 运行产物
+*.log
+proxy.log
+*.db
+*.sqlite
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+.DS_Store

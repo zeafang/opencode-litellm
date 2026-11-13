@@ -1,0 +1,27 @@
+# 起步配置：不需要任何 API key，先验证网关本身能起、能列模型、能收请求。
+# 需要 Ollama 在跑；没装也能启动，只是调用会失败。
+# 验证通过后再换成 config.example.yaml。
+
+model_list:
+  - model_name: local-offline
+    litellm_params:
+      model: ollama/qwen2.5-coder:7b
+      api_base: http://127.0.0.1:11434
+    model_info:
+      supports_vision: false
+
+  - model_name: embed-local
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://127.0.0.1:11434
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 1
+  timeout: 120
+
+litellm_settings:
+  drop_params: true
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

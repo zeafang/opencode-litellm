@@ -1,0 +1,36 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "local-gateway": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Local LiteLLM Gateway",
+      "options": {
+        "baseURL": "http://127.0.0.1:4000/v1",
+        "apiKey": "<为 OpenCode 单独创建且限制模型范围的虚拟 key>"
+      },
+      "models": {
+        "code-fast": { "name": "Code Fast (Company)" },
+        "reason-deep": { "name": "Deep Reason (Company)" },
+        "vision-pro": { "name": "Vision Pro (Gemini)" },
+        "claude-main": { "name": "Claude Main" },
+        "local-offline": { "name": "Local Offline" }
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "model": "local-gateway/vision-pro",
+      "description": "主指挥：读图、拆任务、验收，不直接写长代码"
+    },
+    "fast-coder": {
+      "mode": "subagent",
+      "model": "local-gateway/code-fast",
+      "description": "执行员：按指令改代码/SQL，改完跑测试"
+    },
+    "deep-thinker": {
+      "mode": "subagent",
+      "model": "local-gateway/reason-deep",
+      "description": "攻坚：复杂 bug、并发、算法验证"
+    }
+  }
+}

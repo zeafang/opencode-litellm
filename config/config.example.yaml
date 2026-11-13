@@ -1,0 +1,76 @@
+# 复制到 %USERPROFILE%\.litellm\config.yaml 后按需修改。
+# 规则：model_name 是能力别名；key 只写 os.environ/XXX。
+
+model_list:
+  # ---------- 公司通道（合规，只出内网） ----------
+  - model_name: code-fast
+    litellm_params:
+      model: openai/deepseek-chat
+      api_base: http://<公司网关>:4000/v1
+      api_key: os.environ/COMPANY_LITELLM_KEY
+    model_info:
+      supports_vision: false
+      supports_function_calling: true
+      max_input_tokens: 64000
+
+  - model_name: reason-deep
+    litellm_params:
+      model: openai/deepseek-reasoner
+      api_base: http://<公司网关>:4000/v1
+      api_key: os.environ/COMPANY_LITELLM_KEY
+    model_info:
+      supports_vision: false
+      supports_function_calling: true
+
+  # ---------- 个人云通道 ----------
+  - model_name: vision-pro
+    litellm_params:
+      model: gemini/<当前Gemini型号>
+      api_key: os.environ/GEMINI_API_KEY
+    model_info:
+      supports_vision: true
+      supports_function_calling: true
+      max_input_tokens: 1000000
+
+  - model_name: claude-main
+    litellm_params:
+      model: anthropic/<当前Claude型号>
+      api_key: os.environ/ANTHROPIC_API_KEY
+    model_info:
+      supports_vision: true
+      supports_function_calling: true
+
+  # ---------- 本地 ----------
+  - model_name: local-offline
+    litellm_params:
+      model: ollama/qwen2.5-coder:14b
+      api_base: http://127.0.0.1:11434
+    model_info:
+      supports_vision: false
+
+  - model_name: embed-local
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://127.0.0.1:11434
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  timeout: 600
+  allowed_fails: 2
+  cooldown_time: 30
+
+  # 只降级到数据政策允许的通道。审核拒绝不自动跨提供方重试。
+  fallbacks:
+    - reason-deep: [code-fast]
+
+  context_window_fallbacks:
+    - code-fast: [vision-pro]
+
+litellm_settings:
+  drop_params: true
+  request_timeout: 600
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/LITELLM_DATABASE_URL

@@ -1,0 +1,34 @@
+# 放到 ~/.continue/config.yaml
+name: local-gateway
+version: 0.0.1
+schema: v1
+
+models:
+  - name: Code Fast (Company)
+    provider: openai
+    model: code-fast
+    apiBase: http://127.0.0.1:4000/v1
+    apiKey: <该前端专用 key>
+    roles:
+      - chat
+      - edit
+      - apply
+
+  - name: Vision Pro (Gemini)
+    provider: openai
+    model: vision-pro
+    apiBase: http://127.0.0.1:4000/v1
+    apiKey: <该前端专用 key>
+    roles:
+      - chat
+      - edit
+    capabilities:
+      - image_input
+
+  - name: Deep Reason (Company)
+    provider: openai
+    model: reason-deep
+    apiBase: http://127.0.0.1:4000/v1
+    apiKey: <该前端专用 key>
+    roles:
+      - chat

@@ -1,0 +1,34 @@
+# 演示用配置：不需要任何真实 key，用来验证网关本身的管理能力。
+# demo-fast 直接返回固定文本；reason-deep 指向一个死端口，用来验证降级。
+# 用法：litellm --config config\demo.mock.yaml --host 127.0.0.1 --port 4000
+
+model_list:
+  - model_name: demo-fast
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: os.environ/DEMO_KEY          # 随便填，mock 不上上游
+      mock_response: "通了的。这是 demo-fast 返回的固定文本。"
+    model_info:
+      supports_vision: false
+
+  - model_name: reason-deep
+    litellm_params:
+      model: openai/deepseek-chat
+      api_base: http://127.0.0.1:9/v1       # 故意写死端口，必然连不上
+      api_key: os.environ/DEMO_KEY
+      timeout: 5
+    model_info:
+      supports_vision: false
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 0
+  timeout: 10
+  fallbacks:
+    - reason-deep: [demo-fast]              # 故障时落到 demo-fast
+
+litellm_settings:
+  drop_params: true
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
